@@ -1,11 +1,12 @@
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, inspect, func, desc
 from flask import Flask, jsonify
 import datetime as dt
 import numpy as np
 import pandas as pd
+from sqlalchemy import func
 
 #Create engine
 engine = create_engine("sqlite:///Resources/hawaii.sqlite")
@@ -57,23 +58,22 @@ def precipitation():
 @app.route('/api/v1.0/stations')
 def stations():
     #Return a JSON list of stations from the dataset.
-    results = session.query(Station).all()
+    results = session.query(station.name).all()
 
-    stations = []
-    for station in results:
+    station_data = []
+    for name in results:
         stations_dict = {}
-        stations_dict['Station'] = station 
         stations_dict['Name'] = name
-        stations.append(station_dict)
+        station_data.append(stations_dict)
 
-    return jsonify(stations)
+    return jsonify(station_data)
 
 #Query the dates and temperature observations of the most active station for the last year of data.
 #Return a JSON list of temperature observations (TOBS) for the previous year.
 @app.route('/api/v1.0/tobs')
 def tobs():
     
-    results = session.query(measurement.station, measurement.date, measurement.tobs)
+    results = session.query(measurement.station, measurement.date, measurement.tobs).all()
       
     tobs_data = []
     for station, date, tobs in results:
@@ -97,8 +97,8 @@ def tobs():
 @app.route('/api/v1.0/<start>')
 def start_data(start=None):
 
-    results = session.query(fun.min(measurement.tobs), func.max(measurement.tobs), func.avg(measurement.tobs)).\
-                filter(measurement.date >= start).all()
+    results = session.query(func.min(measurement.tobs), func.max(measurement.tobs), func.avg(measurement.tobs))
+               
 
     temp_stats = []
 
@@ -113,14 +113,11 @@ def start_data(start=None):
 
 @app.route("/api/v1.0/temp/<start>/<end>")
 def calc_stats(start=None, end=None):
-    """Return a json list of the minimum temperature, the average temperature, 
-    and the max temperature for a given start-end date range."""
     
     # Query all the stations and for the given range of dates. 
-    results = session.query(func.min(measurement.tobs), func.max(measurement.tobs),func.avg(measurement.tobs)).\
-    filter(measurement.date >= start).filter(measurement.date <= end).all()
+    results = session.query(func.min(measurement.tobs), func.max(measurement.tobs),func.avg(measurement.tobs))
+   
 
-  
     begin_end_stats = []
     
     for Tmin, Tmax, Tavg in results:
