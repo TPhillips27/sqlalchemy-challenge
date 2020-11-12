@@ -60,7 +60,7 @@ def stations():
     results = session.query(Station).all()
 
     stations = []
-    for stations in results:
+    for station in results:
         stations_dict = {}
         stations_dict['Station'] = station 
         stations_dict['Name'] = name
@@ -79,7 +79,7 @@ def tobs():
                
 
     tobs_data = []
-    for tobs_data in results:
+    for station, date, tobs in results:
         tobs_dict = {}
         tobs_dict['Station'] = station 
         tobs_dict['Dates'] = date
