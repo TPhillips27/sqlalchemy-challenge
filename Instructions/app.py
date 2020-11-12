@@ -23,11 +23,8 @@ station = Base.classes.station
 #Create session linke from Python to the database
 session = Session(engine)
 
-
 #create app
 app = Flask(__name__)
-
-
 
 #define route/endpoint
 @app.route("/")
@@ -46,14 +43,13 @@ start_date = dt.date(2017, 8, 23) - dt.timedelta(days=365)
 def precipitation():
     #Retrieve last 12 months of precipitation data
     results = session.query(measurement.date, measurement.prcp).\
-                filter(measurement.date > start_date).\
-                order_by(measurement.date).all()
-
+                filter(measurement.date > start_date).all()
+          
     prcp_data = []
-    for prcp_data in results:
+    for date, prcp in results:
         prcp_data_dict = {}
-        prcp_data_dict['date'] = prcp_data.date
-        prcp_data_dict['prcp'] = prcp_data.prcp
+        prcp_data_dict['date'] = date
+        prcp_data_dict['prcp'] = prcp
         prcp_data.append(prcp_data_dict)
     
     return jsonify(prcp_data)
@@ -66,8 +62,8 @@ def stations():
     stations = []
     for stations in results:
         stations_dict = {}
-        stations_dict['Station'] = stations.station 
-        stations_dict['Name'] = stations.name
+        stations_dict['Station'] = station 
+        stations_dict['Name'] = name
         stations.append(station_dict)
 
     return jsonify(stations)
@@ -79,15 +75,15 @@ def tobs():
     
     results = session.query(measurement.station, measurement.date, measurement.tobs).\
                 group_by(measurement.date).\
-                filter(measurement.date > star_date).\
-                order_by(measurement.station).all()
+                filter(measurement.date > star_date).all().\
+               
 
     tobs_data = []
     for tobs_data in results:
         tobs_dict = {}
-        tobs_dict['Station'] = stations.station 
-        tobs_dict['Dates'] = stations.date
-        tobs_dict['Temp'] = tobs_date.tobs
+        tobs_dict['Station'] = station 
+        tobs_dict['Dates'] = date
+        tobs_dict['Temp'] = tobs
         tobs_data.append(tobs_dict)
 
     return jsonify(tobs_data)
@@ -139,13 +135,13 @@ def calc_stats(start=None, end=None):
     
     return jsonify(begin_end_stats)
 
-# look at activite 7, 10 for wording 
-# look at titanic 
-# look at 11 for looping 
+# # look at activity 7, 10 for wording 
+# # look at titanic 
+# # look at 11 for looping 
 
-#final item
+# #final item
 if __name__ == '__main__':
     app.run(debug=True)
-
+    app.run(host='0.0.0.0', port = 5000)
 
 
