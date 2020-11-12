@@ -73,11 +73,8 @@ def stations():
 @app.route('/api/v1.0/tobs')
 def tobs():
     
-    results = session.query(measurement.station, measurement.date, measurement.tobs).\
-                group_by(measurement.date).\
-                filter(measurement.date > star_date).all().\
-               
-
+    results = session.query(measurement.station, measurement.date, measurement.tobs)
+      
     tobs_data = []
     for station, date, tobs in results:
         tobs_dict = {}
